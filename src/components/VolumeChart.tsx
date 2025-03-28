@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { Exercise } from '@/services/exerciseService';
+import { useVolumeData } from '@/services/workoutService';
 
 interface VolumeChartProps {
   exercise: Exercise;

@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import {
   useExercises,
   useInitializeExercises,
+  useCreateExercise,
   Exercise
 } from '@/services/exerciseService';
 import { Search, Plus, Check } from 'lucide-react';
@@ -40,6 +41,7 @@ const Exercises = () => {
   const { token } = useAuth();
   const { data: exercises = [], isLoading, error } = useExercises(token);
   const initializeExercises = useInitializeExercises();
+  const createExercise = useCreateExercise();
   
   const [filteredExercises, setFilteredExercises] = useState<Exercise[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -108,18 +110,10 @@ const Exercises = () => {
     if (!token) return;
     
     try {
-      const response = await fetch('/api/exercises', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(newExercise),
+      await createExercise.mutateAsync({ 
+        exercise: newExercise, 
+        token 
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to create exercise');
-      }
       
       toast.success(`Exercise "${newExercise.name}" created successfully`);
       setOpenDialog(false);
@@ -129,9 +123,6 @@ const Exercises = () => {
         description: '',
         requiresWeight: true
       });
-      
-      // Refetch exercises
-      window.location.reload();
     } catch (error) {
       toast.error('Failed to create exercise');
     }

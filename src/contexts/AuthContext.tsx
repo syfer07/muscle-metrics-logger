@@ -2,7 +2,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
-import { mockApiService } from '@/services/mockApiService';
 
 interface User {
   id: string;
@@ -56,16 +55,41 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = async (email: string, password: string) => {
     try {
-      // Use mock API service instead of real fetch
-      const data = await mockApiService.login(email, password);
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to login');
+      }
+
+      const data = await response.json();
       
       // Store token in localStorage
       localStorage.setItem('token', data.token);
       setToken(data.token);
       
+      // Fetch user profile with token
+      const profileResponse = await fetch('/api/users/profile', {
+        headers: {
+          'Authorization': `Bearer ${data.token}`,
+        },
+      });
+
+      if (!profileResponse.ok) {
+        throw new Error('Failed to fetch user profile');
+      }
+
+      const userProfile = await profileResponse.json();
+      
       // Set user data
-      setUser(data.user);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      setUser(userProfile);
+      localStorage.setItem('user', JSON.stringify(userProfile));
       
       toast.success('Logged in successfully');
     } catch (error) {
@@ -80,8 +104,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const register = async (username: string, email: string, password: string) => {
     try {
-      // Use mock API service instead of real fetch
-      await mockApiService.register(username, email, password);
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to register');
+      }
       
       toast.success('Registered successfully! Please log in.');
     } catch (error) {

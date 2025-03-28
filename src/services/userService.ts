@@ -1,7 +1,6 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { mockApiService } from './mockApiService';
 
 interface UserProfile {
   username: string;
@@ -15,11 +14,39 @@ interface PasswordChange {
 }
 
 const updateProfile = async ({ profile, token }: { profile: UserProfile, token: string }) => {
-  return await mockApiService.updateUserProfile(token, profile);
+  const response = await fetch('/api/users/profile', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(profile)
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to update profile');
+  }
+
+  return await response.json();
 };
 
 const updatePassword = async ({ passwordData, token }: { passwordData: PasswordChange, token: string }) => {
-  return await mockApiService.updatePassword(token, passwordData.oldPassword, passwordData.newPassword);
+  const response = await fetch('/api/users/password', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(passwordData)
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to update password');
+  }
+
+  return await response.json();
 };
 
 export const useUpdateProfile = () => {
