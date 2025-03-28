@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
+import { mockApiService } from '@/services/mockApiService';
 
 interface User {
   id: string;
@@ -55,39 +56,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Login failed');
-      }
-
-      const data = await response.json();
+      // Use mock API service instead of real fetch
+      const data = await mockApiService.login(email, password);
       
       // Store token in localStorage
       localStorage.setItem('token', data.token);
       setToken(data.token);
       
-      // Fetch user profile
-      const userResponse = await fetch('/api/users/profile', {
-        headers: {
-          'Authorization': `Bearer ${data.token}`,
-        },
-      });
-      
-      if (!userResponse.ok) {
-        throw new Error('Failed to fetch user profile');
-      }
-      
-      const userData = await userResponse.json();
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
+      // Set user data
+      setUser(data.user);
+      localStorage.setItem('user', JSON.stringify(data.user));
       
       toast.success('Logged in successfully');
     } catch (error) {
@@ -102,19 +80,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const register = async (username: string, email: string, password: string) => {
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, email, password }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Registration failed');
-      }
-
+      // Use mock API service instead of real fetch
+      await mockApiService.register(username, email, password);
+      
       toast.success('Registered successfully! Please log in.');
     } catch (error) {
       if (error instanceof Error) {
