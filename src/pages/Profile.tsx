@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,7 +50,6 @@ const Profile = () => {
       });
       
       updateUser(updatedProfile);
-      toast.success('Profile updated successfully');
     } catch (error) {
       console.error('Profile update failed:', error);
     } finally {
@@ -85,8 +83,6 @@ const Profile = () => {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      
-      toast.success('Password updated successfully');
     } catch (error) {
       console.error('Password update failed:', error);
     } finally {

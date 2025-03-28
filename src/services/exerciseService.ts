@@ -1,5 +1,6 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { mockApiService } from './mockApiService';
 
 interface Exercise {
   id: string;
@@ -9,84 +10,30 @@ interface Exercise {
   requiresWeight: boolean;
 }
 
-const fetchExercises = async (token: string): Promise<Exercise[]> => {
-  const response = await fetch('/api/exercises', {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch exercises');
-  }
-  
-  return response.json();
+const fetchExercises = async (): Promise<Exercise[]> => {
+  return await mockApiService.getExercises();
 };
 
-const fetchExercisesByMuscleGroup = async (muscleGroup: string, token: string): Promise<Exercise[]> => {
-  const response = await fetch(`/api/exercises/muscle-group/${muscleGroup}`, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-  
-  if (!response.ok) {
-    throw new Error(`Failed to fetch exercises for ${muscleGroup}`);
-  }
-  
-  return response.json();
+const fetchExercisesByMuscleGroup = async (muscleGroup: string): Promise<Exercise[]> => {
+  return await mockApiService.getExercisesByMuscleGroup(muscleGroup);
 };
 
-const fetchExercise = async (id: string, token: string): Promise<Exercise> => {
-  const response = await fetch(`/api/exercises/${id}`, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch exercise');
-  }
-  
-  return response.json();
+const fetchExercise = async (id: string): Promise<Exercise> => {
+  return await mockApiService.getExerciseById(id);
 };
 
-const createExercise = async ({ exercise, token }: { exercise: Omit<Exercise, 'id'>, token: string }): Promise<Exercise> => {
-  const response = await fetch('/api/exercises', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify(exercise),
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to create exercise');
-  }
-  
-  return response.json();
+const createExercise = async ({ exercise }: { exercise: Omit<Exercise, 'id'> }): Promise<Exercise> => {
+  return await mockApiService.createExercise(exercise);
 };
 
-const initializeDefaultExercises = async (token: string): Promise<{ message: string }> => {
-  const response = await fetch('/api/exercises/initialize', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to initialize default exercises');
-  }
-  
-  return response.json();
+const initializeDefaultExercises = async (): Promise<{ message: string }> => {
+  return await mockApiService.initializeExercises();
 };
 
 export const useExercises = (token: string | null) => {
   return useQuery({
     queryKey: ['exercises'],
-    queryFn: () => token ? fetchExercises(token) : Promise.resolve([]),
+    queryFn: fetchExercises,
     enabled: !!token,
   });
 };
@@ -94,7 +41,7 @@ export const useExercises = (token: string | null) => {
 export const useExercisesByMuscleGroup = (muscleGroup: string, token: string | null) => {
   return useQuery({
     queryKey: ['exercises', muscleGroup],
-    queryFn: () => token ? fetchExercisesByMuscleGroup(muscleGroup, token) : Promise.resolve([]),
+    queryFn: () => fetchExercisesByMuscleGroup(muscleGroup),
     enabled: !!token && !!muscleGroup,
   });
 };
@@ -102,7 +49,7 @@ export const useExercisesByMuscleGroup = (muscleGroup: string, token: string | n
 export const useExercise = (id: string, token: string | null) => {
   return useQuery({
     queryKey: ['exercise', id],
-    queryFn: () => token ? fetchExercise(id, token) : Promise.resolve({} as Exercise),
+    queryFn: () => fetchExercise(id),
     enabled: !!token && !!id,
   });
 };
