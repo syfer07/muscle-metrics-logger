@@ -21,6 +21,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { toast } from 'sonner';
 
 const registerSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),
@@ -56,6 +57,7 @@ const Register = () => {
       navigate('/login');
     } catch (error) {
       console.error('Registration failed:', error);
+      // Error is already handled in the register function with toast
     } finally {
       setIsSubmitting(false);
     }

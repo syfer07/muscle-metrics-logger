@@ -63,9 +63,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         body: JSON.stringify({ email, password }),
       });
 
+      // Check if the request was successful
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to login');
+        let errorMessage = 'Failed to login';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (e) {
+          console.error('Error parsing error response:', e);
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -82,7 +89,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
 
       if (!profileResponse.ok) {
-        throw new Error('Failed to fetch user profile');
+        const errorData = await profileResponse.json();
+        throw new Error(errorData.message || 'Failed to fetch user profile');
       }
 
       const userProfile = await profileResponse.json();
@@ -112,12 +120,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         body: JSON.stringify({ username, email, password }),
       });
 
+      // Check if the request was successful
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to register');
+        let errorMessage = 'Failed to register';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (e) {
+          console.error('Error parsing error response:', e);
+        }
+        throw new Error(errorMessage);
       }
       
-      toast.success('Registered successfully! Please log in.');
+      // Parse response
+      const data = await response.json();
+      toast.success(data.message || 'Registered successfully! Please log in.');
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);

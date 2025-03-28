@@ -24,8 +24,14 @@ const updateProfile = async ({ profile, token }: { profile: UserProfile, token: 
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Failed to update profile');
+    let errorMessage = 'Failed to update profile';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorMessage;
+    } catch (e) {
+      console.error('Error parsing error response:', e);
+    }
+    throw new Error(errorMessage);
   }
 
   return await response.json();
@@ -42,8 +48,14 @@ const updatePassword = async ({ passwordData, token }: { passwordData: PasswordC
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Failed to update password');
+    let errorMessage = 'Failed to update password';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorMessage;
+    } catch (e) {
+      console.error('Error parsing error response:', e);
+    }
+    throw new Error(errorMessage);
   }
 
   return await response.json();

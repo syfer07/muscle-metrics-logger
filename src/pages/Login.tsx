@@ -22,6 +22,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { toast } from 'sonner';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -50,6 +51,7 @@ const Login = () => {
       navigate('/');
     } catch (error) {
       console.error('Login failed:', error);
+      // Error is already handled in the login function with toast
     } finally {
       setIsSubmitting(false);
     }
